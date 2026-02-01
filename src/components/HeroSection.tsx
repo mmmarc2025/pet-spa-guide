@@ -1,8 +1,20 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Star } from "lucide-react";
 import heroImage from "@/assets/hero-dog.jpg";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { BookingForm } from "./BookingForm";
 
 const HeroSection = () => {
+  const [open, setOpen] = useState(false);
+
   return (
     <section
       id="home"
@@ -35,9 +47,23 @@ const HeroSection = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button variant="hero" size="lg">
-                預約服務
-              </Button>
+              <Dialog open={open} onOpenChange={setOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="hero" size="lg">
+                    預約服務
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>預約寵物美容</DialogTitle>
+                    <DialogDescription>
+                      請填寫以下資訊，我們將為您安排專屬的美容師到府服務。
+                    </DialogDescription>
+                  </DialogHeader>
+                  <BookingForm onSuccess={() => setOpen(false)} />
+                </DialogContent>
+              </Dialog>
+
               <Button variant="outline" size="lg">
                 了解更多
               </Button>
