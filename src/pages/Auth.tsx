@@ -45,7 +45,8 @@ export default function AuthPage() {
         localStorage.setItem("custom_user", JSON.stringify(data.user));
         
         toast({ title: "登入成功", description: `歡迎回來，${data.user.display_name}！` });
-        navigate("/dashboard");
+        // Redirect to home instead of dashboard
+        navigate("/");
       })
       .catch(err => {
         console.error(err);

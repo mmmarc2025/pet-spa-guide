@@ -1,30 +1,43 @@
-import { Scissors, Bath, Heart, Sparkles, Clock, Award } from "lucide-react";
+
+import { Scissors, Bath, Heart, Sparkles, Clock, Award, Cat, Syringe } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import catImage from "@/assets/cat-grooming.jpg";
 import poodleImage from "@/assets/poodle-styled.jpg";
 import toolsImage from "@/assets/grooming-tools.jpg";
 
+// Re-using existing images, distributing them reasonably
 const services = [
   {
     icon: Bath,
-    title: "洗澡護理",
-    description: "使用天然有機洗毛精，溫和不刺激，讓毛髮柔順亮麗",
-    price: "NT$ 500起",
-    image: catImage,
+    title: "基礎洗澡",
+    engTitle: "Basic Bath",
+    description: "包含：洗澡、潤絲、清耳朵、剪指甲、擠肛門腺、修腳底毛。",
+    note: "最安全的清潔服務",
+    image: poodleImage, // Using dog image
   },
   {
     icon: Scissors,
-    title: "造型修剪",
-    description: "專業造型師依據品種特性，打造最適合的可愛造型",
-    price: "NT$ 800起",
-    image: poodleImage,
+    title: "精緻修剪",
+    engTitle: "Full Grooming",
+    description: "包含：全身剪毛、造型修剪 (泰迪熊、貴賓腳)。",
+    note: "專業美容技術",
+    image: toolsImage, // Using tools image
   },
   {
     icon: Sparkles,
-    title: "SPA護理",
-    description: "深層護理毛髮，滋養肌膚，享受頂級SPA體驗",
-    price: "NT$ 1200起",
-    image: toolsImage,
+    title: "局部護理",
+    engTitle: "Care Add-on",
+    description: "刷牙、梳廢毛、深層護毛 SPA。除蚤藥浴需配合獸醫處方。",
+    note: "深層清潔與保養",
+    image: poodleImage, // Reuse or find another if possible, for now reuse
+  },
+  {
+    icon: Cat,
+    title: "貓咪美容",
+    engTitle: "Cat Grooming",
+    description: "專為貓咪設計的洗澡與修剪服務，全程低壓力操作。",
+    note: "重點：全程無麻醉",
+    image: catImage, // Using cat image
   },
 ];
 
@@ -59,19 +72,20 @@ const ServicesSection = () => {
             專業寵物美容服務
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            我們提供全方位的寵物美容服務，從基礎洗澡到高級SPA護理，
-            讓您的毛寶貝煥然一新
+            我們提供最安全、透明的寵物美容體驗。
+            <br />
+            所有服務皆不含醫療行為，讓您的毛寶貝享受純粹的呵護。
           </p>
         </div>
 
-        {/* Services Grid */}
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
+        {/* Services Grid (Updated to 4 cols) */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           {services.map((service, index) => (
             <Card
               key={index}
-              className="group overflow-hidden border-0 shadow-card hover:shadow-warm transition-all duration-300 hover:-translate-y-2 bg-background"
+              className="group overflow-hidden border-0 shadow-card hover:shadow-warm transition-all duration-300 hover:-translate-y-2 bg-background flex flex-col"
             >
-              <div className="relative h-48 overflow-hidden">
+              <div className="relative h-48 overflow-hidden shrink-0">
                 <img
                   src={service.image}
                   alt={service.title}
@@ -79,17 +93,30 @@ const ServicesSection = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-foreground/20 to-transparent" />
               </div>
-              <CardContent className="p-6">
+              <CardContent className="p-6 flex flex-col flex-grow">
                 <div className="w-12 h-12 rounded-2xl gradient-warm flex items-center justify-center mb-4 -mt-10 relative z-10 shadow-warm">
                   <service.icon className="w-6 h-6 text-primary-foreground" />
                 </div>
-                <h3 className="font-display text-xl font-bold text-foreground mb-2">
-                  {service.title}
-                </h3>
-                <p className="text-muted-foreground mb-4">{service.description}</p>
-                <p className="font-display font-bold text-primary text-lg">
-                  {service.price}
+                
+                <div className="mb-2">
+                    <h3 className="font-display text-xl font-bold text-foreground">
+                    {service.title}
+                    </h3>
+                    <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                    {service.engTitle}
+                    </span>
+                </div>
+                
+                <p className="text-muted-foreground text-sm mb-4 flex-grow leading-relaxed">
+                    {service.description}
                 </p>
+                
+                <div className="pt-4 border-t border-border/50">
+                    <p className="font-medium text-primary text-sm flex items-center gap-2">
+                        <Sparkles className="w-4 h-4" />
+                        {service.note}
+                    </p>
+                </div>
               </CardContent>
             </Card>
           ))}
