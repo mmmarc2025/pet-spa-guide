@@ -126,7 +126,14 @@ export default function AuthPage() {
               </svg>
               Google
             </Button>
-            <Button variant="outline" className="bg-[#00C300] text-white hover:bg-[#00B300] hover:text-white border-none" onClick={() => supabase.auth.signInWithOAuth({ provider: 'line', options: { redirectTo: window.location.origin } })}>
+            <Button 
+              variant="outline" 
+              className="bg-[#00C300] text-white hover:bg-[#00B300] hover:text-white border-none" 
+              onClick={() => {
+                // Use Edge Function for LINE Login (Bot Channel)
+                window.location.href = "https://yzkjyiugkkuqycxitfst.supabase.co/functions/v1/line-auth/login";
+              }}
+            >
               <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M20.2 6.5c-1.3-1.6-3.5-2.6-6-2.6s-4.7 1-6 2.6C6.4 8.2 5.5 10.8 5.5 13.5c0 .7.1 1.4.3 2 .2.7.5 1.4.8 2 .1.2.2.4.2.6 0 .4-.1.8-.3 1.2-.2.4-.5 1-.6 1.3-.1.2-.1.4-.1.5 0 .2.1.3.2.4.1.1.2.1.4.1.2 0 .4-.1.6-.2 1.3-.6 2.3-1.3 2.9-1.9.3-.3.6-.5.9-.6.7.2 1.5.3 2.3.3 2.5 0 4.7-1 6-2.6 1.8-2.3 1.8-6.1-.1-8.6zm-12 7.1c-.2 0-.4-.2-.4-.4V9.6c0-.2.2-.4.4-.4s.4.2.4.4v3.6c0 .2-.2.4-.4.4zm2.1 0c-.2 0-.4-.2-.4-.4V9.6c0-.2.2-.4.4-.4s.4.2.4.4v3.6c0 .2-.2.4-.4.4zm2.8-1.5h-1.6v-1.9h1.6c.2 0 .4-.2.4-.4s-.2-.4-.4-.4h-2c-.2 0-.4.2-.4.4v3.6c0 .2.2.4.4.4h2c.2 0 .4-.2.4-.4s-.2-.4-.4-.4zm2.8 1.5c-.2 0-.4-.2-.4-.4V9.6c0-.2.2-.4.4-.4h2c.2 0 .4.2.4.4s-.2.4-.4.4h-1.6v1h1.6c.2 0 .4.2.4.4s-.2.4-.4.4h-2v.8c0 .3.2.5.4.5h.1z"/>
               </svg>
