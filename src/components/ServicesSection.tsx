@@ -1,5 +1,5 @@
 
-import { Scissors, Bath, Heart, Sparkles, Clock, Award, Cat, Syringe } from "lucide-react";
+import { Scissors, Bath, Heart, Sparkles, Clock, Award, Palette, Syringe } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import catImage from "@/assets/cat-grooming.jpg";
 import poodleImage from "@/assets/poodle-styled.jpg";
@@ -32,12 +32,12 @@ const services = [
     image: poodleImage, // Reuse or find another if possible, for now reuse
   },
   {
-    icon: Cat,
-    title: "貓咪美容",
-    engTitle: "Cat Grooming",
-    description: "專為貓咪設計的洗澡與修剪服務，全程低壓力操作。",
-    note: "重點：全程無麻醉",
-    image: catImage, // Using cat image
+    icon: Palette,
+    title: "特殊美容",
+    engTitle: "Creative Styling",
+    description: "創意染色、特殊造型修剪、主題裝扮。使用寵物專用安全染劑。",
+    note: "讓毛孩成為全場焦點✨",
+    image: catImage, // Using cat image (maybe replace later with colored dog?)
   },
 ];
 
