@@ -85,46 +85,64 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
+import ServiceManager from "@/components/ServiceManager";
+
+// Inside Dashboard component...
           {/* Main Content */}
           <div className="md:col-span-3">
-            <Card>
-              <CardHeader>
-                <CardTitle>預約紀錄</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {bookings.length === 0 ? (
-                  <div className="text-center py-12 text-muted-foreground">
-                    目前沒有預約紀錄
-                    <br />
-                    <Button variant="link" onClick={() => navigate("/")} className="mt-2">
-                      去預約第一次服務
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {bookings.map((booking) => (
-                      <div key={booking.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                        <div>
-                          <div className="font-medium flex items-center gap-2">
-                            {booking.service_type === 'basic_bath' ? '🛁 基礎洗澡' : '✂️ 大美容'}
-                            <span className={`text-xs px-2 py-1 rounded-full ${
-                              booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                              booking.status === 'confirmed' ? 'bg-green-100 text-green-800' : 'bg-gray-100'
-                            }`}>
-                              {booking.status === 'pending' ? '待確認' : booking.status}
-                            </span>
-                          </div>
-                          <div className="text-sm text-gray-500 mt-1">
-                            預約日期：{new Date(booking.preferred_date).toLocaleDateString()}
-                          </div>
-                        </div>
-                        <Button variant="outline" size="sm">查看詳情</Button>
+            <Tabs defaultValue="bookings">
+              <TabsList>
+                <TabsTrigger value="bookings">預約管理</TabsTrigger>
+                {/* 只有美容師才顯示服務管理 */}
+                <TabsTrigger value="services">服務項目</TabsTrigger> 
+              </TabsList>
+              
+              <TabsContent value="bookings">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>預約紀錄</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {/* ... existing booking list ... */}
+                    {bookings.length === 0 ? (
+                      <div className="text-center py-12 text-muted-foreground">
+                        目前沒有預約紀錄
+                        <br />
+                        <Button variant="link" onClick={() => navigate("/")} className="mt-2">
+                          去預約第一次服務
+                        </Button>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                    ) : (
+                      <div className="space-y-4">
+                        {bookings.map((booking) => (
+                          <div key={booking.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                            <div>
+                              <div className="font-medium flex items-center gap-2">
+                                {booking.service_type === 'basic_bath' ? '🛁 基礎洗澡' : '✂️ 大美容'}
+                                <span className={`text-xs px-2 py-1 rounded-full ${
+                                  booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
+                                  booking.status === 'confirmed' ? 'bg-green-100 text-green-800' : 'bg-gray-100'
+                                }`}>
+                                  {booking.status === 'pending' ? '待確認' : booking.status}
+                                </span>
+                              </div>
+                              <div className="text-sm text-gray-500 mt-1">
+                                預約日期：{new Date(booking.preferred_date).toLocaleDateString()}
+                              </div>
+                            </div>
+                            <Button variant="outline" size="sm">查看詳情</Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="services">
+                <ServiceManager />
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </main>
