@@ -17,11 +17,55 @@ export default function AuthPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // 如果已經登入，直接跳轉後台
+    // 1. Check for LINE Login Token in URL
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    const error = params.get("error");
+
+    if (error) {
+      toast({ title: "登入失敗", description: `LINE 登入錯誤: ${error}`, variant: "destructive" });
+      // Clear URL param
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    if (token) {
+      setLoading(true);
+      // Verify token with backend
+      fetch("https://yzkjyiugkkuqycxitfst.supabase.co/functions/v1/line-auth/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) throw new Error(data.error);
+        
+        // Save custom session
+        localStorage.setItem("custom_auth_token", token);
+        localStorage.setItem("custom_user", JSON.stringify(data.user));
+        
+        toast({ title: "登入成功", description: `歡迎回來，${data.user.display_name}！` });
+        navigate("/dashboard");
+      })
+      .catch(err => {
+        console.error(err);
+        toast({ title: "驗證失敗", description: "登入憑證無效或已過期", variant: "destructive" });
+      })
+      .finally(() => setLoading(false));
+      return; // Skip Supabase check if processing token
+    }
+
+    // 2. Check Supabase Session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) navigate("/dashboard");
     });
-  }, [navigate]);
+    
+    // 3. Check Custom Session (already logged in)
+    if (localStorage.getItem("custom_auth_token")) {
+      navigate("/dashboard");
+    }
+
+  }, [navigate, toast]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

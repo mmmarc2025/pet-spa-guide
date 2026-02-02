@@ -22,14 +22,42 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        navigate("/auth");
-      } else {
+    const checkAuth = async () => {
+      // 1. Try Supabase Auth
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
         setUser(session.user);
         fetchBookings(session.user.id);
+        return;
       }
-    });
+
+      // 2. Try Custom Auth (LINE)
+      const customToken = localStorage.getItem("custom_auth_token");
+      const customUserStr = localStorage.getItem("custom_user");
+      
+      if (customToken && customUserStr) {
+        try {
+          const customUser = JSON.parse(customUserStr);
+          // Adapt custom user to match minimal expectation (email/id)
+          setUser({
+            id: customUser.id,
+            email: customUser.display_name || "LINE User", // Display name as email fallback
+            user_metadata: {
+              avatar_url: customUser.picture_url
+            }
+          });
+          fetchBookings(customUser.id);
+          return;
+        } catch (e) {
+          console.error("Invalid custom user data", e);
+        }
+      }
+
+      // 3. No auth found
+      navigate("/auth");
+    };
+
+    checkAuth();
   }, [navigate]);
 
   const fetchBookings = async (userId: string) => {
@@ -45,7 +73,10 @@ export default function Dashboard() {
   };
 
   const handleLogout = async () => {
+    // Clear both
     await supabase.auth.signOut();
+    localStorage.removeItem("custom_auth_token");
+    localStorage.removeItem("custom_user");
     navigate("/");
   };
 
