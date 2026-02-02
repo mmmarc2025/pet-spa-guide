@@ -66,6 +66,29 @@ export default function Dashboard() {
   // Role-based rendering
   const renderDashboard = () => {
       const role = user.role || 'owner';
+      
+      // Check for pending verification
+      if ((role === 'store' || role === 'groomer') && user.is_verified === false) {
+          return (
+              <div className="flex flex-col items-center justify-center py-16 space-y-6 text-center">
+                  <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center">
+                      <div className="text-4xl">⏳</div>
+                  </div>
+                  <div className="space-y-2">
+                      <h2 className="text-2xl font-bold text-gray-900">帳號審核中</h2>
+                      <p className="text-gray-500 max-w-md mx-auto">
+                          我們已收到您的{role === 'store' ? '店家' : '美容師'}申請。
+                          <br />
+                          管理員將在 24 小時內完成審核，請稍候再回來查看。
+                      </p>
+                  </div>
+                  <Button variant="outline" onClick={() => window.location.reload()}>
+                      重新整理狀態
+                  </Button>
+              </div>
+          );
+      }
+
       switch(role) {
           case 'admin': return <AdminDashboard user={user} />;
           case 'store': return <StoreDashboard user={user} />;
