@@ -26,10 +26,15 @@ ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_sessions ENABLE ROW LEVEL SECURITY;
 
 -- 4. Create policies (Allow Edge Function full access via service role, but restrict public)
--- For simplicity in this demo, we allow public read for own user
-CREATE POLICY "Users can view own profile" ON public.users
-    FOR SELECT USING (true); -- Ideally filter by session, but custom auth makes RLS tricky without JWT.
-    -- Since we use Edge Function with Service Role to write, RLS won't block it.
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies WHERE tablename = 'users' AND policyname = 'Users can view own profile'
+    ) THEN
+        CREATE POLICY "Users can view own profile" ON public.users FOR SELECT USING (true);
+    END IF;
+END
+$$;
 
 -- 5. Grant permissions to service_role and anon (if needed)
 GRANT ALL ON public.users TO service_role;
