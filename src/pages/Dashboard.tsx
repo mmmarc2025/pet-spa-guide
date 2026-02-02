@@ -65,7 +65,8 @@ export default function Dashboard() {
 
   // Role-based rendering
   const renderDashboard = () => {
-      switch(user.role) {
+      const role = user.role || 'owner';
+      switch(role) {
           case 'admin': return <AdminDashboard user={user} />;
           case 'store': return <StoreDashboard user={user} />;
           case 'groomer': return <GroomerDashboard user={user} />;
