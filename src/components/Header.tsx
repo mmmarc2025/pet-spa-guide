@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Heart } from "lucide-react";
+import { Menu, X, Heart, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   const navLinks = [
     { name: "首頁", href: "#home" },
@@ -39,8 +41,17 @@ const Header = () => {
             ))}
           </nav>
 
-          {/* CTA Button */}
-          <div className="hidden md:block">
+          {/* CTA Buttons */}
+          <div className="hidden md:flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => navigate("/auth")}
+              className="gap-2"
+            >
+              <User className="w-4 h-4" />
+              會員登入
+            </Button>
             <Button variant="hero" size="default">
               立即預約
             </Button>
@@ -73,6 +84,18 @@ const Header = () => {
                   {link.name}
                 </a>
               ))}
+              <hr className="border-border" />
+              <Button 
+                variant="ghost" 
+                className="justify-start gap-2"
+                onClick={() => {
+                  navigate("/auth");
+                  setIsMenuOpen(false);
+                }}
+              >
+                <User className="w-4 h-4" />
+                會員登入
+              </Button>
               <Button variant="hero" size="default" className="mt-2">
                 立即預約
               </Button>
