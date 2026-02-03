@@ -1,14 +1,16 @@
 
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Users, ShieldAlert, CheckCircle, XCircle, Store, Scissors } from "lucide-react";
+import { Users, ShieldAlert, CheckCircle, XCircle, Store, Scissors, Home } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 
 export function AdminDashboard({ user }: { user: any }) {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [stats, setStats] = useState({ totalUsers: 0, pending: 0 });
   const [pendingUsers, setPendingUsers] = useState<any[]>([]);
@@ -16,25 +18,23 @@ export function AdminDashboard({ user }: { user: any }) {
 
   const fetchData = async () => {
     setLoading(true);
-    // Fetch stats (Demo: just counting fetched records for simplicity, real app should use count queries)
-    
-    // Fetch pending applications
-    // Note: RLS must allow admin to see these rows
+    // Fetch pending applications (Include 'provider' just in case)
     const { data: pending, error } = await supabase
         .from('profiles')
         .select('*')
-        .in('role', ['store', 'groomer'])
+        .in('role', ['store', 'groomer', 'provider', 'admin'])
         .eq('is_verified', false)
         .order('created_at', { ascending: false });
 
     if (error) {
         console.error("Fetch error:", error);
-        // Fallback for demo if RLS blocks
     } else {
-        setPendingUsers(pending || []);
+        // Filter out self if somehow included
+        const filtered = pending?.filter(u => u.id !== user.id) || [];
+        setPendingUsers(filtered);
         setStats({ 
-            totalUsers: 0, // Placeholder
-            pending: pending?.length || 0 
+            totalUsers: 0, 
+            pending: filtered.length 
         });
     }
     setLoading(false);
@@ -54,12 +54,11 @@ export function AdminDashboard({ user }: { user: any }) {
         toast({ title: "操作失敗", description: error.message, variant: "destructive" });
     } else {
         toast({ title: "已核准", description: "該用戶現在可以登入後台了。" });
-        fetchData(); // Refresh
+        fetchData();
     }
   };
 
   const handleReject = async (id: string) => {
-    // Revert role to owner
     const { error } = await supabase
         .from('profiles')
         .update({ role: 'owner', is_verified: false })
@@ -69,14 +68,19 @@ export function AdminDashboard({ user }: { user: any }) {
         toast({ title: "操作失敗", description: error.message, variant: "destructive" });
     } else {
         toast({ title: "已駁回", description: "該用戶身分已重置為一般會員。" });
-        fetchData(); // Refresh
+        fetchData();
     }
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold tracking-tight">系統管理中心</h2>
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+            <Home className="w-5 h-5" />
+          </Button>
+          <h2 className="text-2xl font-bold tracking-tight">系統管理中心</h2>
+        </div>
         <Button variant="outline" size="sm" onClick={fetchData}>重新整理</Button>
       </div>
       
@@ -106,7 +110,6 @@ export function AdminDashboard({ user }: { user: any }) {
         <TabsList>
             <TabsTrigger value="applications">申請審核</TabsTrigger>
             <TabsTrigger value="users">所有用戶</TabsTrigger>
-            <TabsTrigger value="settings">系統設定</TabsTrigger>
         </TabsList>
         
         <TabsContent value="applications">
@@ -133,7 +136,7 @@ export function AdminDashboard({ user }: { user: any }) {
                                                 <Badge variant="outline" className="capitalize">{u.role}</Badge>
                                             </div>
                                             <div className="text-sm text-muted-foreground">
-                                                申請人：{u.full_name} ({u.email || 'LINE Login'})
+                                                ID: {u.id.substring(0,8)}...
                                                 <br />
                                                 申請時間：{new Date(u.created_at).toLocaleDateString()}
                                             </div>
@@ -155,13 +158,6 @@ export function AdminDashboard({ user }: { user: any }) {
                     )}
                 </CardContent>
             </Card>
-        </TabsContent>
-        
-        <TabsContent value="users">
-            <Card><CardContent className="py-8 text-center text-muted-foreground">用戶列表功能開發中...</CardContent></Card>
-        </TabsContent>
-        <TabsContent value="settings">
-            <Card><CardContent className="py-8 text-center text-muted-foreground">系統設定功能開發中...</CardContent></Card>
         </TabsContent>
       </Tabs>
     </div>
