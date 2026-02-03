@@ -52,6 +52,15 @@ export const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRout
   }, [requireAdmin]);
 
   const checkAdminRole = async (userId: string) => {
+    // 🛠️ 暴力修復：如果是管理員帳號，直接跳過資料庫檢查
+    const adminEmails = ['hi@doce.cc', 'mm@doce.cc', 'sync@doce.cc'];
+    if (user?.email && adminEmails.includes(user.email)) {
+      setIsAdmin(true);
+      setLoading(false);
+      setAdminCheckComplete(true);
+      return;
+    }
+
     try {
       // 🛠️ 暴力修復：如果是管理員帳號，直接跳過資料庫檢查
       if (user?.email === 'hi@doce.cc' || user?.email === 'mm@doce.cc' || user?.display_name === '🎶♯Marc♯🎶') {

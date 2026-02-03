@@ -37,9 +37,9 @@ const HeroSection = () => {
             </div>
 
             <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-6">
-              給毛寶貝
+              毛寵管家
               <br />
-              <span className="text-primary">最溫柔的呵護</span>
+              <span className="text-primary">你最溫柔的夥伴</span>
             </h1>
 
             <p className="text-lg text-muted-foreground mb-8 max-w-md font-body">
