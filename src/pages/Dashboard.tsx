@@ -98,6 +98,14 @@ export default function Dashboard() {
       }
   };
 
+  // Role translation map
+  const roleNames: Record<string, string> = {
+    owner: "毛孩家長",
+    groomer: "美容師",
+    store: "店家",
+    admin: "管理員"
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b sticky top-0 z-30">
@@ -109,8 +117,8 @@ export default function Dashboard() {
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-500 hidden sm:inline">
               {user?.display_name || user?.email} 
-              <span className="ml-2 px-2 py-0.5 rounded-full bg-gray-100 text-xs border uppercase">
-                {user?.role || 'owner'}
+              <span className="ml-2 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs border border-primary/20 font-medium">
+                {roleNames[user?.role] || "會員"}
               </span>
             </span>
             <Button variant="ghost" size="sm" onClick={handleLogout}>
