@@ -1,11 +1,54 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Heart, User } from "lucide-react";
+import { Menu, X, Heart, User, LogOut, Settings, LayoutDashboard } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Initial session check
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setUser(session.user);
+      } else {
+        const customUser = localStorage.getItem("custom_user");
+        if (customUser) setUser(JSON.parse(customUser));
+      }
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        setUser(session.user);
+      } else {
+        const customUser = localStorage.getItem("custom_user");
+        if (customUser) setUser(JSON.parse(customUser));
+        else setUser(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    localStorage.removeItem("custom_auth_token");
+    localStorage.removeItem("custom_user");
+    setUser(null);
+    navigate("/");
+  };
 
   const navLinks = [
     { name: "首頁", href: "#home" },
@@ -19,12 +62,12 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <a href="#home" className="flex items-center gap-2">
+          <a href="/" className="flex items-center gap-2">
             <div className="w-10 h-10 rounded-full gradient-warm flex items-center justify-center">
               <Heart className="w-5 h-5 text-primary-foreground fill-current" />
             </div>
             <span className="font-display font-bold text-xl text-foreground">
-              毛寶貝沙龍
+              Groom.now
             </span>
           </a>
 
@@ -43,15 +86,45 @@ const Header = () => {
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center gap-4">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => navigate("/auth")}
-              className="gap-2"
-            >
-              <User className="w-4 h-4" />
-              會員登入
-            </Button>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="gap-2 focus-visible:ring-0">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      <User className="w-4 h-4 text-primary" />
+                    </div>
+                    <span className="font-medium">{user.display_name || user.email?.split('@')[0] || "會員"}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>我的帳號</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                    <span>會員中心</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>帳號設定</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>登出</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => navigate("/auth")}
+                className="gap-2"
+              >
+                <User className="w-4 h-4" />
+                會員登入
+              </Button>
+            )}
             <Button variant="hero" size="default">
               立即預約
             </Button>
