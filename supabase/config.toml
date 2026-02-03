@@ -1,7 +1,1 @@
 project_id = "yzkjyiugkkuqycxitfst"
-
-[functions.line-auth]
-verify_jwt = false
-
-[functions.line-bot]
-verify_jwt = false
