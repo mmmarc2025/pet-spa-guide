@@ -67,7 +67,7 @@ const Header = () => {
               <Heart className="w-5 h-5 text-primary-foreground fill-current" />
             </div>
             <span className="font-display font-bold text-xl text-foreground">
-              Groom.now
+              Groom.today
             </span>
           </a>
 

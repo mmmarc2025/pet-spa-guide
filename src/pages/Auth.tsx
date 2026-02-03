@@ -115,7 +115,7 @@ export default function AuthPage() {
 
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-display">歡迎回到 Groom.now</CardTitle>
+          <CardTitle className="text-2xl font-display">歡迎回到 Groom.today</CardTitle>
           <CardDescription>登入以管理您的預約或查看訂單</CardDescription>
         </CardHeader>
         <CardContent>
