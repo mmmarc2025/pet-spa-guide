@@ -1,23 +1,84 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useNavigate } from "react-router-dom";
-import { Dog, Calendar, Store, Scissors } from "lucide-react";
+import { Dog, Calendar, Store, Scissors, Plus } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 
 export function OwnerDashboard({ user }: { user: any }) {
   const navigate = useNavigate();
   const { toast } = useToast();
+  
+  // Partner Application State
   const [isApplyOpen, setIsApplyOpen] = useState(false);
   const [applyType, setApplyType] = useState<"store" | "groomer">("store");
   const [applyName, setApplyName] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Pet State
+  const [petCount, setPetCount] = useState(0);
+  const [isAddPetOpen, setIsAddPetOpen] = useState(false);
+  const [petForm, setPetForm] = useState({
+    name: "",
+    breed: "",
+    age: "",
+    weight: "",
+    notes: ""
+  });
+
+  useEffect(() => {
+    if (user?.id) {
+        fetchPetCount();
+    }
+  }, [user?.id]);
+
+  const fetchPetCount = async () => {
+    const { count, error } = await supabase
+        .from('pets')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+    
+    if (error) {
+        console.error("Error fetching pets:", error);
+    } else if (count !== null) {
+        setPetCount(count);
+    }
+  };
+
+  const handleAddPet = async () => {
+    if (!petForm.name) {
+        toast({ title: "請填寫寵物名稱", variant: "destructive" });
+        return;
+    }
+    setLoading(true);
+    try {
+        const { error } = await supabase.from('pets').insert({
+            user_id: user.id,
+            name: petForm.name,
+            breed: petForm.breed,
+            age: petForm.age ? parseInt(petForm.age) : null,
+            weight: petForm.weight ? parseFloat(petForm.weight) : null,
+            notes: petForm.notes
+        });
+
+        if (error) throw error;
+
+        toast({ title: "新增成功", description: "您的毛孩已加入資料庫。" });
+        setIsAddPetOpen(false);
+        setPetForm({ name: "", breed: "", age: "", weight: "", notes: "" });
+        fetchPetCount();
+    } catch (e: any) {
+        toast({ title: "新增失敗", description: e.message, variant: "destructive" });
+    } finally {
+        setLoading(false);
+    }
+  };
 
   const handleApply = async () => {
     if (!applyName) return;
@@ -58,16 +119,88 @@ export function OwnerDashboard({ user }: { user: any }) {
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        {/* My Pets Card */}
+        <Card className="relative">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">我的毛孩</CardTitle>
-            <Dog className="h-4 w-4 text-muted-foreground" />
+            <div className="flex items-center gap-2">
+                <Dialog open={isAddPetOpen} onOpenChange={setIsAddPetOpen}>
+                    <DialogTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-muted">
+                            <Plus className="h-4 w-4" />
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>新增毛孩</DialogTitle>
+                            <DialogDescription>
+                                填寫您的毛孩基本資料
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                            <div className="grid gap-2">
+                                <Label htmlFor="pet-name">名字</Label>
+                                <Input 
+                                    id="pet-name" 
+                                    value={petForm.name} 
+                                    onChange={(e) => setPetForm({...petForm, name: e.target.value})} 
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="grid gap-2">
+                                    <Label htmlFor="pet-breed">品種</Label>
+                                    <Input 
+                                        id="pet-breed" 
+                                        value={petForm.breed} 
+                                        onChange={(e) => setPetForm({...petForm, breed: e.target.value})} 
+                                    />
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="pet-age">年齡 (歲)</Label>
+                                    <Input 
+                                        id="pet-age" 
+                                        type="number" 
+                                        value={petForm.age} 
+                                        onChange={(e) => setPetForm({...petForm, age: e.target.value})} 
+                                    />
+                                </div>
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="pet-weight">體重 (kg)</Label>
+                                <Input 
+                                    id="pet-weight" 
+                                    type="number" 
+                                    step="0.1" 
+                                    value={petForm.weight} 
+                                    onChange={(e) => setPetForm({...petForm, weight: e.target.value})} 
+                                />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="pet-notes">備註</Label>
+                                <Textarea 
+                                    id="pet-notes" 
+                                    value={petForm.notes} 
+                                    onChange={(e) => setPetForm({...petForm, notes: e.target.value})} 
+                                />
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => setIsAddPetOpen(false)}>取消</Button>
+                            <Button onClick={handleAddPet} disabled={loading}>
+                                {loading ? "新增中..." : "新增"}
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+                <Dog className="h-4 w-4 text-muted-foreground" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1</div>
+            <div className="text-2xl font-bold">{petCount}</div>
             <p className="text-xs text-muted-foreground">已建檔</p>
           </CardContent>
         </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">即將到來的預約</CardTitle>
