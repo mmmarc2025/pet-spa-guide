@@ -21,7 +21,7 @@ export function AdminDashboard({ user }: { user: any }) {
     // Fetch pending applications
     // Note: RLS must allow admin to see these rows
     const { data: pending, error } = await supabase
-        .from('users')
+        .from('profiles')
         .select('*')
         .in('role', ['store', 'groomer'])
         .eq('is_verified', false)
@@ -46,7 +46,7 @@ export function AdminDashboard({ user }: { user: any }) {
 
   const handleApprove = async (id: string) => {
     const { error } = await supabase
-        .from('users')
+        .from('profiles')
         .update({ is_verified: true })
         .eq('id', id);
 
@@ -61,7 +61,7 @@ export function AdminDashboard({ user }: { user: any }) {
   const handleReject = async (id: string) => {
     // Revert role to owner
     const { error } = await supabase
-        .from('users')
+        .from('profiles')
         .update({ role: 'owner', is_verified: false })
         .eq('id', id);
 
@@ -129,11 +129,11 @@ export function AdminDashboard({ user }: { user: any }) {
                                         </div>
                                         <div>
                                             <div className="font-bold text-lg flex items-center gap-2">
-                                                {u.store_name || u.display_name}
+                                                {u.store_name || u.full_name}
                                                 <Badge variant="outline" className="capitalize">{u.role}</Badge>
                                             </div>
                                             <div className="text-sm text-muted-foreground">
-                                                申請人：{u.display_name} ({u.email || 'LINE Login'})
+                                                申請人：{u.full_name} ({u.email || 'LINE Login'})
                                                 <br />
                                                 申請時間：{new Date(u.created_at).toLocaleDateString()}
                                             </div>

@@ -90,15 +90,21 @@ export function OwnerDashboard({ user }: { user: any }) {
             is_verified: false, // Pending admin approval
         };
 
+        if (applyName) {
+            updates.store_name = applyName;
+        }
+        
+        /* 
         if (applyType === 'store') {
             updates.store_name = applyName;
         } else {
             // For groomer, maybe bio or just reuse store_name field conceptually or add display_name update
             // Let's stick to updating role first.
         }
+        */
 
         const { error } = await supabase
-            .from('users')
+            .from('profiles')
             .update(updates)
             .eq('id', user.id);
 
